@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>México — Eventos de Crimen Organizado 2023–2026</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@300;400;600;700;900&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #050608;
+    --bg2: #0a0c10;
+    --bg3: #0f1218;
+    --card: #111418;
+    --border: #1e2530;
+    --border2: #2a3545;
+    --accent: #e63946;
+    --accent2: #ff6b35;
+    --accent3: #ffd166;
+    --blue: #4cc9f0;
+    --green: #06d6a0;
+    --muted: #4a5568;
+    --text: #c8d6e5;
+    --text2: #8899aa;
+    --text3: #556677;
+    --cjng: #e63946;
+    --sinaloa: #4cc9f0;
+    --cdg: #06d6a0;
+    --otros: #ffd166;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    font-size: 14px;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* SCANLINES OVERLAY */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
+    pointer-events: none;
+    z-index: 1000;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .classification-badge {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 3px 8px;
+    text-transform: uppercase;
+    animation: pulse-border 2s infinite;
+  }
+  @keyframes pulse-border {
+    0%, 100% { border-color: var(--accent); color: var(--accent); }
+    50% { border-color: #ff6b35; color: #ff6b35; }
+  }
+  .header-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: #fff;
+    text-transform: uppercase;
+  }
+  .header-title span { color: var(--accent); }
+  .header-right {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--text3);
+    letter-spacing: 1px;
+  }
+  .live-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background: var(--green);
+    border-radius: 50%;
+    margin-right: 6px;
+    animation: blink 1.5s infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+  /* LAYOUT */
+  .main {
+    padding: 20px 24px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  /* KPI STRIP */
+  .kpi-strip {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .kpi {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 16px 14px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .kpi:hover { border-color: var(--border2); }
+  .kpi::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+  .kpi.red::before { background: var(--accent); }
+  .kpi.blue::before { background: var(--blue); }
+  .kpi.green::before { background: var(--green); }
+  .kpi.orange::before { background: var(--accent2); }
+  .kpi.yellow::before { background: var(--accent3); }
+  .kpi.purple::before { background: #a78bfa; }
+  .kpi-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    color: var(--text3);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .kpi-value {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 32px;
+    font-weight: 900;
+    line-height: 1;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+  .kpi-sub {
+    font-size: 11px;
+    color: var(--text2);
+  }
+
+  /* GRID */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .grid-main { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .grid-bottom { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+
+  /* CARD */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 18px;
+    position: relative;
+  }
+  .card-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--text3);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  canvas { width: 100% !important; }
+
+  /* TIMELINE */
+  .timeline { display: flex; flex-direction: column; gap: 0; }
+  .timeline-item {
+    display: grid;
+    grid-template-columns: 80px 16px 1fr;
+    gap: 0 12px;
+    align-items: stretch;
+    opacity: 0;
+    transform: translateX(-10px);
+    animation: slideIn 0.3s forwards;
+  }
+  @keyframes slideIn { to { opacity: 1; transform: translateX(0); } }
+  .timeline-date {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--text3);
+    padding: 8px 0;
+    text-align: right;
+  }
+  .timeline-line {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+  .timeline-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 10px;
+  }
+  .timeline-connector {
+    width: 1px;
+    flex: 1;
+    background: var(--border);
+    min-height: 4px;
+  }
+  .timeline-content {
+    padding: 6px 0 10px;
+  }
+  .timeline-type {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 3px;
+  }
+  .timeline-text {
+    font-size: 12px;
+    color: var(--text2);
+    line-height: 1.4;
+  }
+  .timeline-meta {
+    font-size: 10px;
+    color: var(--text3);
+    margin-top: 3px;
+  }
+
+  /* BAR TABLE */
+  .bar-table { display: flex; flex-direction: column; gap: 10px; }
+  .bar-row { display: grid; grid-template-columns: 120px 1fr 50px; gap: 10px; align-items: center; }
+  .bar-label { font-size: 11px; color: var(--text2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bar-track { height: 6px; background: var(--border); border-radius: 0; position: relative; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 0; transition: width 1s ease; }
+  .bar-val { font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--text2); text-align: right; }
+
+  /* EVENTS TABLE */
+  .events-table { width: 100%; border-collapse: collapse; }
+  .events-table th {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    color: var(--text3);
+    text-transform: uppercase;
+    text-align: left;
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .events-table td {
+    padding: 8px 8px;
+    font-size: 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    color: var(--text2);
+  }
+  .events-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .badge {
+    display: inline-block;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    padding: 2px 6px;
+    border: 1px solid;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+  }
+  .badge-red { color: var(--accent); border-color: rgba(230,57,70,0.4); background: rgba(230,57,70,0.07); }
+  .badge-blue { color: var(--blue); border-color: rgba(76,201,240,0.4); background: rgba(76,201,240,0.07); }
+  .badge-green { color: var(--green); border-color: rgba(6,214,160,0.4); background: rgba(6,214,160,0.07); }
+  .badge-orange { color: var(--accent2); border-color: rgba(255,107,53,0.4); background: rgba(255,107,53,0.07); }
+  .badge-yellow { color: var(--accent3); border-color: rgba(255,209,102,0.4); background: rgba(255,209,102,0.07); }
+  .badge-purple { color: #a78bfa; border-color: rgba(167,139,250,0.4); background: rgba(167,139,250,0.07); }
+
+  /* MAP PLACEHOLDER */
+  .map-container {
+    position: relative;
+    height: 280px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .map-svg { width: 100%; height: 100%; }
+
+  /* FILTER BAR */
+  .filter-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .filter-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--text3);
+    letter-spacing: 1px;
+    margin-right: 4px;
+  }
+  .filter-btn {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    padding: 5px 12px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text2);
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: all 0.2s;
+  }
+  .filter-btn:hover, .filter-btn.active {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(230,57,70,0.08);
+  }
+
+  /* SCROLL */
+  .scroll-box { max-height: 320px; overflow-y: auto; }
+  .scroll-box::-webkit-scrollbar { width: 4px; }
+  .scroll-box::-webkit-scrollbar-track { background: var(--bg2); }
+  .scroll-box::-webkit-scrollbar-thumb { background: var(--border2); }
+
+  /* US FLAG */
+  .us-marker { color: var(--blue); font-size: 10px; margin-left: 4px; }
+
+  .divider-text {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--text3);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin: 20px 0 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .divider-text::before, .divider-text::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .footnote {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--text3);
+    padding: 16px 24px;
+    border-top: 1px solid var(--border);
+    margin-top: 8px;
+    display: flex;
+    justify-content: space-between;
+    letter-spacing: 0.5px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <div class="classification-badge">// ANÁLISIS OPERACIONAL</div>
+    <div class="header-title">MÉXICO — <span>CRIMEN ORGANIZADO</span> — 2023–2026</div>
+  </div>
+  <div class="header-right">
+    <span class="live-dot"></span>
+    ACTUALIZADO: MAR 2026 &nbsp;|&nbsp; 40 EVENTOS REGISTRADOS
+  </div>
+</header>
+
+<div class="main">
+
+  <!-- KPI STRIP -->
+  <div class="kpi-strip">
+    <div class="kpi red">
+      <div class="kpi-label">Total Muertos</div>
+      <div class="kpi-value" id="kpi-killed">—</div>
+      <div class="kpi-sub">Civiles + FF.SS + Cárteles</div>
+    </div>
+    <div class="kpi blue">
+      <div class="kpi-label">Arrestos</div>
+      <div class="kpi-value" id="kpi-arrested">—</div>
+      <div class="kpi-sub">Operaciones registradas</div>
+    </div>
+    <div class="kpi green">
+      <div class="kpi-label">Drogas Incautadas</div>
+      <div class="kpi-value" id="kpi-drugs">—</div>
+      <div class="kpi-sub">Kilogramos (fentanilo+)</div>
+    </div>
+    <div class="kpi orange">
+      <div class="kpi-label">Desaparecidos</div>
+      <div class="kpi-value" id="kpi-missing">—</div>
+      <div class="kpi-sub">Personas reportadas</div>
+    </div>
+    <div class="kpi yellow">
+      <div class="kpi-label">Armas Incautadas</div>
+      <div class="kpi-value" id="kpi-weapons">—</div>
+      <div class="kpi-sub">Unidades confiscadas</div>
+    </div>
+    <div class="kpi purple">
+      <div class="kpi-label">Inv. EE.UU.</div>
+      <div class="kpi-value" id="kpi-us">—</div>
+      <div class="kpi-sub">Eventos con agencias USA</div>
+    </div>
+  </div>
+
+  <!-- ROW 1: Timeline + Event Types -->
+  <div class="grid-main">
+    <div class="card">
+      <div class="card-title">Línea de Tiempo — Eventos Clave</div>
+      <div class="scroll-box">
+        <div class="timeline" id="timeline"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Tipo de Evento</div>
+      <canvas id="chartEventType" height="240"></canvas>
+    </div>
+  </div>
+
+  <!-- ROW 2: Charts -->
+  <div class="grid-3">
+    <div class="card">
+      <div class="card-title">Bajas por Cártel</div>
+      <canvas id="chartCartelKills" height="220"></canvas>
+    </div>
+    <div class="card">
+      <div class="card-title">Eventos por Estado</div>
+      <div class="scroll-box" style="max-height:220px">
+        <div class="bar-table" id="stateBar"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Evolución Temporal</div>
+      <canvas id="chartTimeline" height="220"></canvas>
+    </div>
+  </div>
+
+  <!-- ROW 3: Bajas breakdown + US involvement -->
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Distribución de Bajas</div>
+      <canvas id="chartCasualties" height="180"></canvas>
+    </div>
+    <div class="card">
+      <div class="card-title">Participación Agencias EE.UU.</div>
+      <canvas id="chartUS" height="180"></canvas>
+    </div>
+  </div>
+
+  <div class="divider-text">Registro de Eventos</div>
+
+  <!-- EVENTS TABLE -->
+  <div class="card" style="margin-bottom:16px;">
+    <div class="card-title">Todos los Eventos</div>
+    <div class="filter-bar">
+      <span class="filter-label">FILTRAR:</span>
+      <button class="filter-btn active" onclick="filterTable('all', this)">Todos</button>
+      <button class="filter-btn" onclick="filterTable('killing', this)">Asesinatos</button>
+      <button class="filter-btn" onclick="filterTable('mass_violence', this)">Violencia Masiva</button>
+      <button class="filter-btn" onclick="filterTable('arrest', this)">Arrestos</button>
+      <button class="filter-btn" onclick="filterTable('operation', this)">Operaciones</button>
+      <button class="filter-btn" onclick="filterTable('policy', this)">Política</button>
+      <button class="filter-btn" onclick="filterTable('territorial_shift', this)">Territorial</button>
+    </div>
+    <div class="scroll-box" style="max-height:360px;">
+      <table class="events-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Fecha</th>
+            <th>Tipo</th>
+            <th>Cártel</th>
+            <th>Estado</th>
+            <th>Muertos</th>
+            <th>EE.UU.</th>
+            <th>Resumen</th>
+          </tr>
+        </thead>
+        <tbody id="eventsTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<div class="footnote">
+  <span>FUENTES: ACLED · DEA · Reuters · AP · Al Jazeera · BBC · NYT · Vision of Humanity · CFR</span>
+  <span>CLASIFICACIÓN: ANÁLISIS ABIERTO / NO GUBERNAMENTAL</span>
+</div>
+
+<script>
+// ============================================================
+// DATA
+// ============================================================
+const RAW = [
+  {id:"MEX-001",date:"2026-02-22",type:"killing",cartel:"CJNG",state:"Jalisco",killed:7,killed_c:0,killed_s:0,killed_k:7,arrested:2,missing:0,drugs:0,weapons:15,us:true,agency:"US Military Intelligence",trump:true,summary:"El Mencho, líder CJNG, abatido en operativo militar en Tapalpa, Jalisco. Grupo militar estadounidense apoyó la operación."},
+  {id:"MEX-002",date:"2026-02-22",type:"mass_violence",cartel:"CJNG",state:"Jalisco",killed:25,killed_c:3,killed_s:25,killed_k:0,arrested:0,missing:0,drugs:0,weapons:0,us:false,agency:"none",trump:false,summary:"Represalia CJNG tras muerte de El Mencho. 25 elementos de la Guardia Nacional muertos en 6 ataques en Jalisco."},
+  {id:"MEX-003",date:"2026-02-24",type:"mass_violence",cartel:"CJNG",state:"Michoacan",killed:12,killed_c:12,killed_s:0,killed_k:0,arrested:0,missing:0,drugs:0,weapons:0,us:false,agency:"none",trump:false,summary:"Violencia retaliativa CJNG se extiende a Michoacán. Civiles atrapados en fuego cruzado."},
+  {id:"MEX-004",date:"2025-09-26",type:"arrest",cartel:"CJNG",state:"Multi-estado",killed:0,killed_c:0,killed_s:0,killed_k:0,arrested:670,missing:0,drugs:1200,weapons:320,us:true,agency:"DEA",trump:true,summary:"Operativo DEA contra CJNG: 670 arrestos en múltiples estados de EE.UU. y México. Grandes incautaciones de fentanilo y efectivo."},
+  {id:"MEX-005",date:"2025-08-10",type:"mass_violence",cartel:"Sinaloa",state:"Sinaloa",killed:17,killed_c:2,killed_s:0,killed_k:15,arrested:0,missing:0,drugs:0,weapons:0,us:false,agency:"none",trump:false,summary:"Día récord de homicidios en Sinaloa durante guerra civil Chapitos vs Mayos. 17 muertos en un día en Culiacán."},
+  {id:"MEX-006",date:"2025-09-09",type:"mass_violence",cartel:"Sinaloa",state:"Sinaloa",killed:1828,killed_c:400,killed_s:50,killed_k:1378,arrested:0,missing:2390,drugs:0,weapons:0,us:false,agency:"none",trump:false,summary:"Reporte acumulado un año: guerra civil Sinaloa entre Chapitos y Mayos deja 1,828 muertos y 2,390 desaparecidos desde arresto de El Mayo."},
+  {id:"MEX-007",date:"2024-07-25",type:"arrest",cartel:"Sinaloa",state:"Sonora",killed:0,killed_c:0,killed_s:0,killed_k:0,arrested:1,missing:0,drugs:0,weapons:0,us:true,agency:"DEA",trump:false,summary:"'El Mayo' Zambada, cofundador del Cártel de Sinaloa, arrestado y extraditado a EE.UU. Desencadenó masiva guerra interna."},
+  {id:"MEX-008",date:"2026-02-21",type:"arrest",cartel:"Sinaloa",state:"Sinaloa",killed:0,killed_c:0,killed_s:0,killed_k:0,arrested:1,missing:0,drugs:0,weapons:0,us:true,agency:"ODNI",trump:true,summary:"ODNI identifica y localiza jefe de plaza Sinaloa. Arrestado con asistencia de inteligencia estadounidense."},
+  {id:"MEX-009",date:"2026-01-09",type:"policy",cartel:"Multiple",state:"Federal",killed:0,killed_c:0,killed_s:0,killed_k:0,arrested:0,missing:0,drugs:0,weapons:0,us:true,agency:"White House",trump:true,summary:"Trump designa formalmente cárteles mexicanos como organizaciones terroristas. Aumenta presión sobre México para cooperación militar."},
+  {id:"MEX-010",date:"2026-02-22",type:"operation",cartel:"CJNG",state:"Jalisco",killed:0,killed_c:0,killed_s:0,killed_k:0,arrested:0,missing:0,drugs:0,weapons:0,us:true,agency:"US Military",trump:true,summary:"Nuevo grupo de inteligencia militar de EE.UU. revela haber ayudado a México en localización de El Mencho. Primer papel militar directo conocido en operativo anti-cártel."},
+  {id:"MEX-011",date:"2025-11-03",type:"operation",cartel:"Sinaloa",state:"Sinaloa",killed:13,killed_c:0,killed_s:0,killed_k:13,arrested:0,missing:0,drugs:0,weapons:0,us:false,agency:"none",trump:false,summary:"Fuerzas de seguridad mexicanas emboscadas por grupo armado Sinaloa. 13 atacantes muertos en enfrentamiento en Sinaloa."},
+  {id:"MEX-012",date:"2024-10-15",type:"arrest",cartel:"Los Zetas / CDN",state:"Tamaulipas",killed:0,killed_c:0,killed_s:0,killed_k:0,arrested:2,missing:0,drugs:0,weapons:0,us:true,agency:"DEA",trump:false,summary:"DEA acusa a hermanos Treviño Morales (Z-40 y Z-42) por décadas de violencia, asesinatos y narcotráfico."},
+  {id:"MEX-013",date:"2024-07-25",type:"arrest",cartel:"Sinaloa",state:"Sonora",killed:0,killed_c:0,killed_s:0,killed_k:0,arrested:1,missing:0,drugs:0,weapons:0,us:true,agency:"DEA",trump:false,summary:"Joaquín Guzmán López (hijo de El Chapo) se entregó a autoridades federales de EE.UU. junto con El Mayo. Detonante de guerra interna Sinaloa."},
+  {id:"MEX-014",date:"2025-07-25",type:"mass_violence",cartel:"Sinaloa",state:"Sinaloa",killed:400,killed_c:80,killed_s:20,killed_k:300,arrested:0,missing:500,drugs:0,weapons:0,us:false,agency:"none",trump:false,summary:"Un año tras arresto de El Mayo: ataques a civiles y enfrentamientos casi se cuadruplicaron. Hito acumulativo registrado por ACLED."},
+  {id:"MEX-015",date:"2025-09-01",type:"killing",cartel:"Sinaloa",state:"Sinaloa",killed:1828,killed_c:350,killed_s:78,killed_k:1400,arrested:0,missing:2390,drugs:0,weapons:0,us:false,agency:"none",trump:false,summary:"ACLED registra pico — septiembre 2025 marca inicio oficial de guerra civil total en Sinaloa. Homicidios suben 400% vs niveles pre-arresto El Mayo."},
+  {id:"MEX-016",date:"2023-01-01",type:"operation",cartel:"Sinaloa",state:"Frontera",killed:0,killed_c:0,killed_s:0,killed_k:0,arrested:0,missing:0,drugs:9909,weapons:0,us:true,agency:"CBP",trump:false,summary:"CBP de EE.UU. registra año pico de incautación de fentanilo: 21,846 lbs (9,909 kg) en frontera México-EE.UU. en FY2023. Aumento del 164% desde 2020."},
+  {id:"MEX-017",date:"2025-03-01",type:"operation",cartel:"Sinaloa",state:"Frontera",killed:0,killed_c:0,killed_s:0,killed_k:0,arrested:0,missing:0,drugs:345,weapons:0,us:true,agency:"CBP",trump:true,summary:"Incautaciones de fentanilo en frontera caen drásticamente a 760 lbs en marzo 2025, vs pico de 3,220 lbs en abril 2023."},
+  {id:"MEX-018",date:"2026-02-23",type:"mass_violence",cartel:"CJNG",state:"Jalisco",killed:70,killed_c:15,killed_s:25,killed_k:30,arrested:0,missing:0,drugs:0,weapons:0,us:false,agency:"none",trump:false,summary:"Post muerte de El Mencho: soldados continúan choque con CJNG segundo día. Muertos totales alcanzan 70+. Alertas de refugio para turistas estadounidenses."},
+  {id:"MEX-019",date:"2026-02-24",type:"policy",cartel:"CJNG",state:"Federal",killed:0,killed_c:0,killed_s:0,killed_k:0,arrested:0,missing:0,drugs:0,weapons:0,us:true,agency:"White House",trump:true,summary:"Presidenta Sheinbaum consolida poder tras muerte de El Mencho. EE.UU. aumenta presión sobre México para cooperación militar."},
+  {id:"MEX-020",date:"2026-02-22",type:"mass_violence",cartel:"CJNG",state:"Multiple",killed:30,killed_c:10,killed_s:5,killed_k:15,arrested:0,missing:0,drugs:0,weapons:0,us:false,agency:"none",trump:false,summary:"CJNG incendia vehículos, bloquea autopistas y fuerza toque de queda civil en ciudades mexicanas. Represalia coordinada por muerte de El Mencho."},
+  {id:"MEX-021",date:"2024-10-23",type:"operation",cartel:"Sinaloa",state:"Sinaloa",killed:19,killed_c:0,killed_s:0,killed_k:19,arrested:0,missing:0,drugs:0,weapons:0,us:false,agency:"none",trump:false,summary:"Tropas mexicanas matan 19 presuntos miembros de Sinaloa en Culiacán. Surge de violencia vinculada al arresto de El Mayo."},
+  {id:"MEX-022",date:"2024-10-25",type:"mass_violence",cartel:"Gulf Cartel",state:"Tamaulipas",killed:8,killed_c:0,killed_s:0,killed_k:8,arrested:0,missing:0,drugs:0,weapons:30,us:true,agency:"Texas DPS",trump:false,summary:"Enfrentamiento del Cártel del Golfo cerca del Río Grande capturado por imágenes térmicas de Texas DPS. Fuerte armamento usado a menos de 1 milla de Donna, Texas."},
+  {id:"MEX-023",date:"2024-05-01",type:"mass_violence",cartel:"CJNG",state:"Chiapas",killed:35,killed_c:10,killed_s:5,killed_k:20,arrested:0,missing:0,drugs:0,weapons:0,us:false,agency:"none",trump:false,summary:"CJNG vs Sinaloa en Chiapas: enfrentamientos armados cuadruplicados vs 2022. México despliega 1,500 militares y policías."},
+  {id:"MEX-024",date:"2025-02-27",type:"arrest",cartel:"CJNG",state:"Michoacan",killed:0,killed_c:0,killed_s:0,killed_k:0,arrested:2,missing:0,drugs:0,weapons:0,us:false,agency:"none",trump:false,summary:"SSP detiene 2 miembros de cártel extorsionando productores de aguacate y limón en Apatzingán, Michoacán."},
+  {id:"MEX-025",date:"2025-10-21",type:"killing",cartel:"CJNG",state:"Michoacan",killed:1,killed_c:1,killed_s:0,killed_k:0,arrested:0,missing:0,drugs:0,weapons:0,us:false,agency:"none",trump:false,summary:"Presidente de asociación de limoneros asesinado en su auto tras denunciar públicamente extorsiones de CJNG."},
+  {id:"MEX-026",date:"2024-12-22",type:"mass_violence",cartel:"Sinaloa",state:"Sinaloa",killed:250,killed_c:50,killed_s:20,killed_k:180,arrested:0,missing:300,drugs:0,weapons:0,us:false,agency:"none",trump:false,summary:"Fin 2024: guerra civil Sinaloa se profundiza. Mito del 'buen narco' colapsa mientras ataque a civiles aumenta."},
+  {id:"MEX-027",date:"2024-01-01",type:"mass_violence",cartel:"Multiple",state:"Guerrero",killed:120,killed_c:80,killed_s:10,killed_k:30,arrested:0,missing:0,drugs:0,weapons:0,us:false,agency:"none",trump:false,summary:"La Familia Michoacana vs grupos locales en Guerrero. Disputa por acceso a minas de oro impulsa auge de violencia."},
+  {id:"MEX-028",date:"2026-02-22",type:"mass_violence",cartel:"CJNG",state:"Jalisco",killed:5,killed_c:3,killed_s:0,killed_k:2,arrested:25,missing:0,drugs:0,weapons:0,us:true,agency:"US State Department",trump:true,summary:"CJNG incendia vehículos en Puerto Vallarta tras muerte El Mencho. 300 turistas atrapados en aeropuerto. Depto. de Estado emite alerta."},
+  {id:"MEX-029",date:"2026-02-22",type:"mass_violence",cartel:"CJNG",state:"Jalisco",killed:3,killed_c:2,killed_s:1,killed_k:0,arrested:14,missing:0,drugs:0,weapons:0,us:false,agency:"none",trump:false,summary:"CJNG bloquea calles y quema bancos y farmacias en Guadalajara —sede del Mundial FIFA 2026. Gobernador declara código rojo."},
+  {id:"MEX-030",date:"2026-02-03",type:"policy",cartel:"Multiple",state:"Federal",killed:0,killed_c:0,killed_s:0,killed_k:0,arrested:0,missing:0,drugs:0,weapons:0,us:false,agency:"none",trump:false,summary:"Índice de Paz México 2024: tasa de crimen organizado creció 62.4% en 9 años. ~400 grupos criminales activos."},
+  {id:"MEX-031",date:"2025-10-27",type:"killing",cartel:"Sinaloa",state:"Durango",killed:1,killed_c:1,killed_s:0,killed_k:0,arrested:0,missing:0,drugs:0,weapons:0,us:false,agency:"none",trump:false,summary:"Periodista Miguel Ángel Beltrán hallado muerto envuelto en cobija con mensaje de cártel. 13° periodista asesinado en México en 2025."},
+  {id:"MEX-032",date:"2026-02-25",type:"killing",cartel:"CJNG",state:"Sinaloa",killed:2,killed_c:2,killed_s:0,killed_k:0,arrested:0,missing:0,drugs:0,weapons:0,us:false,agency:"none",trump:false,summary:"Tras muerte de El Mencho, CJNG ataca periodistas de Noroeste en Sinaloa mientras estaban en servicio."},
+  {id:"MEX-033",date:"2025-11-02",type:"killing",cartel:"Multiple",state:"Michoacan",killed:1,killed_c:0,killed_s:0,killed_k:0,arrested:0,missing:0,drugs:0,weapons:0,us:false,agency:"none",trump:false,summary:"Alcalde anti-crimen Carlos Alberto Manzo Rodríguez asesinado por sicarios durante festividades de Día de Muertos."},
+  {id:"MEX-034",date:"2025-05-13",type:"territorial_shift",cartel:"Sinaloa",state:"Baja California",killed:0,killed_c:0,killed_s:0,killed_k:0,arrested:0,missing:0,drugs:0,weapons:0,us:false,agency:"none",trump:false,summary:"Reporte ACLED: fractura Sinaloa redibuja mapa criminal México. Choques en Tijuana suben 16% — Chapitos, CJNG y Cártel de Tijuana compiten por corredor fronterizo."},
+  {id:"MEX-035",date:"2025-05-13",type:"territorial_shift",cartel:"CJNG",state:"Colima",killed:0,killed_c:0,killed_s:0,killed_k:0,arrested:0,missing:0,drugs:0,weapons:0,us:false,agency:"none",trump:false,summary:"CJNG intensifica disputa con Sinaloa sobre puerto de Manzanillo — hub clave en el Pacífico. Aprovecha guerra interna de Sinaloa para expandirse."},
+  {id:"MEX-036",date:"2024-09-09",type:"mass_violence",cartel:"Sinaloa",state:"Sinaloa",killed:60,killed_c:15,killed_s:5,killed_k:40,arrested:0,missing:20,drugs:0,weapons:0,us:false,agency:"none",trump:false,summary:"Guerra civil a escala total en Cártel de Sinaloa el 9 sep 2024. ACLED marca esta como fecha de estallido — enfrentamientos en récord histórico desde 2018."},
+  {id:"MEX-037",date:"2025-09-15",type:"policy",cartel:"Multiple",state:"Federal",killed:0,killed_c:0,killed_s:0,killed_k:0,arrested:0,missing:0,drugs:0,weapons:0,us:false,agency:"none",trump:true,summary:"Índice de Paz México 2025: ~400 grupos criminales activos. Crimen organizado socava estabilidad regional. Presión Trump acelera riesgo de estrategia 'descabezamiento'."},
+  {id:"MEX-038",date:"2025-03-01",type:"operation",cartel:"Sinaloa",state:"Nuevo Leon",killed:4,killed_c:0,killed_s:0,killed_k:4,arrested:8,missing:0,drugs:230,weapons:45,us:true,agency:"DEA",trump:true,summary:"Operativo de inteligencia en Nuevo León destruye narcolaboratorios y sistemas de vigilancia de Sinaloa. Parte del repunte de seguridad Q1 2025 en estados fronterizos."},
+  {id:"MEX-039",date:"2025-12-05",type:"operation",cartel:"CJNG",state:"Michoacan",killed:0,killed_c:0,killed_s:0,killed_k:0,arrested:5,missing:0,drugs:0,weapons:12,us:false,agency:"none",trump:false,summary:"Fuerzas federales desmantelan red de extorsión de aguacate de CJNG en Uruapán. El cártel cobraba hasta 30% del valor de cosecha."},
+  {id:"MEX-040",date:"2026-02-22",type:"policy",cartel:"CJNG",state:"Federal",killed:0,killed_c:0,killed_s:0,killed_k:0,arrested:0,missing:0,drugs:0,weapons:0,us:true,agency:"White House",trump:true,summary:"Muerte de El Mencho declarada victoria mayor en nueva ofensiva anti-cártel de México. Reduce presión Trump sobre Sheinbaum. CJNG podría fragmentarse post-liderazgo."}
+];
+
+// ============================================================
+// HELPERS
+// ============================================================
+const TYPE_COLORS = {
+  killing: '#e63946',
+  mass_violence: '#ff6b35',
+  arrest: '#06d6a0',
+  operation: '#4cc9f0',
+  policy: '#ffd166',
+  territorial_shift: '#a78bfa'
+};
+const TYPE_LABELS = {
+  killing: 'ASESINATO',
+  mass_violence: 'VIOLENCIA MASIVA',
+  arrest: 'ARRESTO',
+  operation: 'OPERACIÓN',
+  policy: 'POLÍTICA',
+  territorial_shift: 'TERRITORIAL'
+};
+const CARTEL_COLORS = {
+  'CJNG': '#e63946',
+  'Sinaloa': '#4cc9f0',
+  'Multiple': '#ffd166',
+  'Gulf Cartel': '#06d6a0',
+  'Los Zetas / CDN': '#a78bfa'
+};
+
+function fmt(n) {
+  if(n >= 1000) return (n/1000).toFixed(1)+'K';
+  return n.toLocaleString();
+}
+
+// ============================================================
+// KPIs
+// ============================================================
+function calcKPIs() {
+  const unique = {};
+  // De-duplicate large cumulative events by ID
+  const deduped = RAW.filter(d => {
+    if(['MEX-006','MEX-014','MEX-015'].includes(d.id)) return false; // skip cumulative duplicates
+    return true;
+  });
+  const totalKilled = deduped.reduce((a,d) => a + d.killed, 0);
+  const totalArrested = RAW.reduce((a,d) => a + d.arrested, 0);
+  const totalDrugs = RAW.reduce((a,d) => a + d.drugs, 0);
+  const totalMissing = deduped.reduce((a,d) => a + d.missing, 0);
+  const totalWeapons = RAW.reduce((a,d) => a + d.weapons, 0);
+  const usEvents = RAW.filter(d => d.us).length;
+
+  document.getElementById('kpi-killed').textContent = fmt(totalKilled);
+  document.getElementById('kpi-arrested').textContent = fmt(totalArrested);
+  document.getElementById('kpi-drugs').textContent = fmt(totalDrugs);
+  document.getElementById('kpi-missing').textContent = fmt(totalMissing);
+  document.getElementById('kpi-weapons').textContent = fmt(totalWeapons);
+  document.getElementById('kpi-us').textContent = usEvents;
+}
+
+// ============================================================
+// TIMELINE
+// ============================================================
+function buildTimeline() {
+  const sorted = [...RAW].sort((a,b) => b.date.localeCompare(a.date)).slice(0,15);
+  const container = document.getElementById('timeline');
+  sorted.forEach((d, i) => {
+    const color = TYPE_COLORS[d.type] || '#888';
+    const dateStr = d.date.slice(0,7);
+    const item = document.createElement('div');
+    item.className = 'timeline-item';
+    item.style.animationDelay = (i * 0.05) + 's';
+    item.innerHTML = `
+      <div class="timeline-date">${dateStr}</div>
+      <div class="timeline-line">
+        <div class="timeline-dot" style="background:${color}"></div>
+        <div class="timeline-connector"></div>
+      </div>
+      <div class="timeline-content">
+        <div class="timeline-type" style="color:${color}">${TYPE_LABELS[d.type] || d.type}</div>
+        <div class="timeline-text">${d.summary.slice(0,100)}${d.summary.length>100?'…':''}</div>
+        <div class="timeline-meta">${d.cartel} · ${d.state}${d.killed>0?' · '+d.killed+' muertos':''}</div>
+      </div>
+    `;
+    container.appendChild(item);
+  });
+}
+
+// ============================================================
+// CHART: Event Types (Donut)
+// ============================================================
+function chartEventTypes() {
+  const counts = {};
+  RAW.forEach(d => { counts[d.type] = (counts[d.type]||0)+1; });
+  const labels = Object.keys(counts).map(k => TYPE_LABELS[k]||k);
+  const data = Object.values(counts);
+  const colors = Object.keys(counts).map(k => TYPE_COLORS[k]||'#888');
+  new Chart(document.getElementById('chartEventType'), {
+    type: 'doughnut',
+    data: { labels, datasets: [{ data, backgroundColor: colors, borderWidth: 0, hoverOffset: 4 }] },
+    options: {
+      responsive: true,
+      cutout: '65%',
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { color: '#8899aa', font: { family: 'Barlow', size: 10 }, padding: 8, boxWidth: 10 }
+        }
+      }
+    }
+  });
+}
+
+// ============================================================
+// CHART: Cartel Kills (Bar)
+// ============================================================
+function chartCartelKills() {
+  // Exclude large cumulative to avoid skew
+  const data = RAW.filter(d => !['MEX-006','MEX-015'].includes(d.id));
+  const counts = {};
+  data.forEach(d => {
+    if(!counts[d.cartel]) counts[d.cartel] = 0;
+    counts[d.cartel] += d.killed;
+  });
+  const sorted = Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+  const labels = sorted.map(e => e[0]);
+  const vals = sorted.map(e => e[1]);
+  const colors = labels.map(l => CARTEL_COLORS[l] || '#666');
+  new Chart(document.getElementById('chartCartelKills'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        data: vals,
+        backgroundColor: colors.map(c => c + '99'),
+        borderColor: colors,
+        borderWidth: 1
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { color: '#556677', font:{size:9} }, grid: { color: '#1e2530' } },
+        y: { ticks: { color: '#8899aa', font:{size:10} }, grid: { display: false } }
+      }
+    }
+  });
+}
+
+// ============================================================
+// STATE BAR TABLE
+// ============================================================
+function buildStateBar() {
+  const counts = {};
+  RAW.forEach(d => {
+    const s = d.state === 'Multi-estado' ? 'Multi-estado' : d.state;
+    counts[s] = (counts[s]||0)+1;
+  });
+  const sorted = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  const max = sorted[0][1];
+  const container = document.getElementById('stateBar');
+  sorted.forEach(([state, count]) => {
+    const pct = (count/max*100).toFixed(0);
+    const div = document.createElement('div');
+    div.className = 'bar-row';
+    div.innerHTML = `
+      <div class="bar-label">${state}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:#e63946aa"></div></div>
+      <div class="bar-val">${count}</div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+// ============================================================
+// CHART: Timeline (events by year-month)
+// ============================================================
+function chartTimeline() {
+  const buckets = {};
+  RAW.forEach(d => {
+    const ym = d.date.slice(0,7);
+    buckets[ym] = (buckets[ym]||0)+1;
+  });
+  const keys = Object.keys(buckets).sort();
+  const vals = keys.map(k => buckets[k]);
+  new Chart(document.getElementById('chartTimeline'), {
+    type: 'bar',
+    data: {
+      labels: keys,
+      datasets: [{
+        data: vals,
+        backgroundColor: 'rgba(230,57,70,0.5)',
+        borderColor: '#e63946',
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { color: '#556677', font:{size:8}, maxRotation:45 }, grid: { display: false } },
+        y: { ticks: { color: '#556677', font:{size:9} }, grid: { color: '#1e2530' }, beginAtZero: true }
+      }
+    }
+  });
+}
+
+// ============================================================
+// CHART: Casualties breakdown
+// ============================================================
+function chartCasualties() {
+  const deduped = RAW.filter(d => !['MEX-006','MEX-015'].includes(d.id));
+  const civs = deduped.reduce((a,d)=>a+d.killed_c,0);
+  const sec = deduped.reduce((a,d)=>a+d.killed_s,0);
+  const krt = deduped.reduce((a,d)=>a+d.killed_k,0);
+  new Chart(document.getElementById('chartCasualties'), {
+    type: 'pie',
+    data: {
+      labels: ['Civiles','Fuerzas de Seguridad','Miembros de Cártel'],
+      datasets: [{
+        data: [civs, sec, krt],
+        backgroundColor: ['#ff6b35cc','#4cc9f0cc','#e63946cc'],
+        borderWidth: 0
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { color: '#8899aa', font:{size:10}, padding:8, boxWidth:10 }
+        }
+      }
+    }
+  });
+}
+
+// ============================================================
+// CHART: US Involvement
+// ============================================================
+function chartUS() {
+  const agencies = {};
+  RAW.filter(d=>d.us).forEach(d => {
+    agencies[d.agency] = (agencies[d.agency]||0)+1;
+  });
+  const sorted = Object.entries(agencies).sort((a,b)=>b[1]-a[1]);
+  const colors = ['#4cc9f0','#06d6a0','#ffd166','#a78bfa','#e63946'];
+  new Chart(document.getElementById('chartUS'), {
+    type: 'bar',
+    data: {
+      labels: sorted.map(e=>e[0]),
+      datasets: [{
+        data: sorted.map(e=>e[1]),
+        backgroundColor: sorted.map((_,i) => colors[i%colors.length]+'99'),
+        borderColor: sorted.map((_,i) => colors[i%colors.length]),
+        borderWidth: 1
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { color: '#556677', font:{size:9} }, grid: { color: '#1e2530' } },
+        y: { ticks: { color: '#8899aa', font:{size:10} }, grid: { display: false } }
+      }
+    }
+  });
+}
+
+// ============================================================
+// EVENTS TABLE
+// ============================================================
+const TYPE_BADGE = {
+  killing: 'badge-red',
+  mass_violence: 'badge-orange',
+  arrest: 'badge-green',
+  operation: 'badge-blue',
+  policy: 'badge-yellow',
+  territorial_shift: 'badge-purple'
+};
+
+function buildTable(filter='all') {
+  const tbody = document.getElementById('eventsTableBody');
+  tbody.innerHTML = '';
+  const sorted = [...RAW].sort((a,b)=>b.date.localeCompare(a.date));
+  sorted.forEach(d => {
+    if(filter !== 'all' && d.type !== filter) return;
+    const tr = document.createElement('tr');
+    tr.dataset.type = d.type;
+    const badgeClass = TYPE_BADGE[d.type] || 'badge-blue';
+    tr.innerHTML = `
+      <td style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#556677">${d.id}</td>
+      <td style="font-family:'Share Tech Mono',monospace;font-size:10px;white-space:nowrap;color:#8899aa">${d.date}</td>
+      <td><span class="badge ${badgeClass}">${TYPE_LABELS[d.type]||d.type}</span></td>
+      <td style="color:${CARTEL_COLORS[d.cartel]||'#8899aa'};font-size:12px;font-weight:600">${d.cartel}</td>
+      <td style="font-size:11px">${d.state}</td>
+      <td style="font-family:'Share Tech Mono',monospace;font-size:11px;color:${d.killed>0?'#e63946':'#556677'}">${d.killed > 0 ? d.killed : '—'}</td>
+      <td>${d.us ? '<span class="badge badge-blue">✓ '+d.agency+'</span>' : '<span style="color:#556677;font-size:11px">—</span>'}</td>
+      <td style="font-size:11px;max-width:300px;color:#8899aa">${d.summary.slice(0,120)}${d.summary.length>120?'…':''}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+window.filterTable = function(type, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  buildTable(type);
+};
+
+// ============================================================
+// INIT
+// ============================================================
+Chart.defaults.color = '#8899aa';
+Chart.defaults.borderColor = '#1e2530';
+
+calcKPIs();
+buildTimeline();
+chartEventTypes();
+chartCartelKills();
+buildStateBar();
+chartTimeline();
+chartCasualties();
+chartUS();
+buildTable();
+</script>
+</body>
+</html>
