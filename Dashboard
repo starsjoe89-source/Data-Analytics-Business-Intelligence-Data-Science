@@ -1,0 +1,6 @@
+ (https://tu-usuario.github.io/retail-sales-dashboard)
+Stack
+- Python · pandas (limpieza y análisis)
+- Chart.js (visualizaciones)
+- HTML/CSS/JS puro (sin frameworks)
+- GitHub Pages (deploy)
